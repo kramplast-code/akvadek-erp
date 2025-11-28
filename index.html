@@ -1,1 +1,29 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Akvadek ERP</title><link rel='stylesheet' href='styles.css'><script src='api-config.js'></script><script src='app.js' defer></script></head><body><h1>Akvadek ERP</h1><div id='app'></div></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>Akvadek ERP</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js" defer></script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">Akvadek ERP</div>
+
+        <button class="menu-item" data-page="dashboard">📊 Дашборд</button>
+        <button class="menu-item" data-page="materials">📦 Склад</button>
+        <button class="menu-item" data-page="production">🏭 Производство</button>
+        <button class="menu-item" data-page="products">📁 Готовая продукция</button>
+        <button class="menu-item" data-page="orders">📝 Заказы</button>
+        <button class="menu-item" data-page="sales">💳 Продажи</button>
+        <button class="menu-item" data-page="finance">💰 Финансы</button>
+        <button class="menu-item" data-page="settings">⚙️ Настройки</button>
+    </div>
+
+    <div class="content">
+        <h1 id="page-title">Дашборд</h1>
+        <div id="page-content"></div>
+    </div>
+</body>
+</html>
