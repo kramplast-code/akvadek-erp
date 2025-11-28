@@ -3,27 +3,47 @@
 <head>
     <meta charset="UTF-8" />
     <title>Akvadek ERP</title>
+
     <link rel="stylesheet" href="styles.css" />
     <script type="module" src="app.js" defer></script>
 </head>
 
 <body>
+
+    <!-- ЛЕВОЕ МЕНЮ -->
     <div class="sidebar">
         <div class="logo">Akvadek ERP</div>
 
         <button class="menu-item" data-page="dashboard">📊 Дашборд</button>
         <button class="menu-item" data-page="materials">📦 Склад</button>
         <button class="menu-item" data-page="production">🏭 Производство</button>
-        <button class="menu-item" data-page="products">📁 Готовая продукция</button>
+        <button class="menu-item" data-page="products">📦 Готовая продукция</button>
         <button class="menu-item" data-page="orders">📝 Заказы</button>
-        <button class="menu-item" data-page="sales">💳 Продажи</button>
-        <button class="menu-item" data-page="finance">💰 Финансы</button>
+        <button class="menu-item" data-page="sales">💰 Продажи</button>
+        <button class="menu-item" data-page="finances">💳 Финансы</button>
         <button class="menu-item" data-page="settings">⚙️ Настройки</button>
     </div>
 
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="content">
         <h1 id="page-title">Дашборд</h1>
         <div id="page-content"></div>
     </div>
+
+    <!-- ================= МОДАЛЬНОЕ ОКНО ================= -->
+    <div id="modal" class="modal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <span id="modal-title">Модальное окно</span>
+                <button class="modal-close" onclick="closeModal()">✖</button>
+            </div>
+
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ============== ТОСТ-УВЕДОМЛЕНИЯ ================= -->
+    <div id="toast-container"></div>
+
 </body>
 </html>
