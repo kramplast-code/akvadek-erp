@@ -1,92 +1,53 @@
-const pages = {
-    dashboard: renderDashboard,
-    materials: renderMaterials,
-    production: renderProduction,
-    products: renderProducts,
-    orders: renderOrders,
-    sales: renderSales,
-    finances: renderFinances,
-    settings: renderSettings
-};
+import { api } from "./api-config.js";
 
-window.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".menu-item").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const page = btn.dataset.page;
-            loadPage(page);
-        });
+async function renderMaterials() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `<h2>📦 Склад материалов</h2><div class="loader">Загрузка...</div>`;
+
+    const data = await api("getMaterials");
+
+    if (!data || !data.length) {
+        box.innerHTML = "<div class='card'>Склад пуст</div>";
+        return;
+    }
+
+    let html = `
+        <button id="addMaterialBtn" class="btn">➕ Добавить материал</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Ед.</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    data.forEach(row => {
+        html += `
+            <tr>
+                <td>${row.material_id}</td>
+                <td>${row.name}</td>
+                <td>${row.category}</td>
+                <td>${row.unit}</td>
+                <td>${row.qty}</td>
+                <td>${row.price}</td>
+                <td>
+                    <button class="btn-small" onclick="moveMaterial('${row.material_id}', 'plus')">➕</button>
+                    <button class="btn-small" onclick="moveMaterial('${row.material_id}', 'minus')">➖</button>
+                </td>
+            </tr>
+        `;
     });
 
-    loadPage("dashboard");
-});
+    html += "</tbody></table>";
 
-function loadPage(page) {
-    document.getElementById("page-title").innerText = document.querySelector(`.menu-item[data-page="${page}"]`).innerText.trim();
-    document.getElementById("page-content").innerHTML = "";
+    box.innerHTML = html;
 
-    if (pages[page]) pages[page]();
-}
-
-/* ---------------- DASHBOARD ---------------- */
-function renderDashboard() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Панель находится в разработке...</div>
-    `;
-}
-
-/* ---------------- MATERIALS ---------------- */
-function renderMaterials() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Склад материалов будет подключён к Google Sheets API</div>
-    `;
-}
-
-/* ---------------- PRODUCTION ---------------- */
-function renderProduction() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Производство: статусы, пайщики, сроки...</div>
-    `;
-}
-
-/* ---------------- PRODUCTS ---------------- */
-function renderProducts() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Готовая продукция — инвентарь изделий</div>
-    `;
-}
-
-/* ---------------- ORDERS ---------------- */
-function renderOrders() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Заказы — CRM мини, статусы, даты...</div>
-    `;
-}
-
-/* ---------------- SALES ---------------- */
-function renderSales() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Продажи — доходы, выручка, маржа...</div>
-    `;
-}
-
-/* ---------------- FINANCES ---------------- */
-function renderFinances() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Финансы — НДС, прибыль, логистика...</div>
-    `;
-}
-
-/* ---------------- SETTINGS ---------------- */
-function renderSettings() {
-    const box = document.getElementById("page-content");
-    box.innerHTML = `
-        <div class="card">Настройки системы ERP Akvadek</div>
-    `;
+    document.getElementById("addMaterialBtn").onclick = () => showAddMaterialForm();
 }
