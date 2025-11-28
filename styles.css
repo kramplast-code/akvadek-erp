@@ -29,4 +29,84 @@ h1, h2, h3 {
 .sidebar {
     width: 250px;
     background: var(--sidebar);
-    height:
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.menu-item {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    text-align: left;
+    background: var(--card);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+    transition: 0.2s;
+}
+
+.menu-item:hover {
+    background: var(--accent);
+}
+
+/* ===== КОНТЕНТ ===== */
+
+.content {
+    margin-left: 270px;
+    padding: 30px;
+}
+
+/* ===== КАРТОЧКИ ===== */
+
+.card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* ===== ТАБЛИЦЫ ===== */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 12px;
+    border-bottom: 1px solid #374151;
+}
+
+table th {
+    text-align: left;
+    background: #273549;
+}
+
+/* ===== КНОПКИ ===== */
+
+.btn {
+    padding: 10px 15px;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: var(--accent-hover);
+}
