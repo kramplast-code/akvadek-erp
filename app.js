@@ -1,59 +1,92 @@
-import { api } from "./api-config.js";
+const pages = {
+    dashboard: renderDashboard,
+    materials: renderMaterials,
+    production: renderProduction,
+    products: renderProducts,
+    orders: renderOrders,
+    sales: renderSales,
+    finances: renderFinances,
+    settings: renderSettings
+};
 
-const content = document.getElementById("page-content");
-const title = document.getElementById("page-title");
-const buttons = document.querySelectorAll(".menu-item");
-
-buttons.forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const page = btn.dataset.page;
-        title.textContent = btn.textContent.replace(/^[^\wа-я]+/, "");
-        loadPage(page);
+window.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".menu-item").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const page = btn.dataset.page;
+            loadPage(page);
+        });
     });
+
+    loadPage("dashboard");
 });
 
-// ---- загрузка страниц ---- //
+function loadPage(page) {
+    document.getElementById("page-title").innerText = document.querySelector(`.menu-item[data-page="${page}"]`).innerText.trim();
+    document.getElementById("page-content").innerHTML = "";
 
-async function loadPage(page) {
-    if (page === "dashboard") return loadDashboard();
-    if (page === "materials") return loadMaterials();
-    if (page === "production") return loadProduction();
-    if (page === "orders") return loadOrders();
-    if (page === "finance") return loadFinance();
+    if (pages[page]) pages[page]();
 }
 
-// ---- Dashboard ---- //
-
-async function loadDashboard() {
-    const data = await api("dashboard");
-
-    content.innerHTML = `
-        <div class="card"><b>📦 Материалы:</b> ${data.materials_count}</div>
-        <div class="card"><b>🏭 Производство:</b> ${data.production_count}</div>
-        <div class="card"><b>📁 Готовая продукция:</b> ${data.products_count}</div>
-        <div class="card"><b>📝 Заказы:</b> ${data.orders_count}</div>
-        <div class="card"><b>💳 Продажи:</b> ${data.sales_count}</div>
+/* ---------------- DASHBOARD ---------------- */
+function renderDashboard() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Панель находится в разработке...</div>
     `;
 }
 
-// ---- Склад ---- //
+/* ---------------- MATERIALS ---------------- */
+function renderMaterials() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Склад материалов будет подключён к Google Sheets API</div>
+    `;
+}
 
-async function loadMaterials() {
-    const list = await api("materials");
+/* ---------------- PRODUCTION ---------------- */
+function renderProduction() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Производство: статусы, пайщики, сроки...</div>
+    `;
+}
 
-    let html = `<div class='card'><h2>Материалы</h2>`;
-    html += `<table><tr><th>Название</th><th>Ед.</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr>`;
+/* ---------------- PRODUCTS ---------------- */
+function renderProducts() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Готовая продукция — инвентарь изделий</div>
+    `;
+}
 
-    list.forEach(m => {
-        html += `<tr>
-            <td>${m.name}</td>
-            <td>${m.unit}</td>
-            <td>${m.qty}</td>
-            <td>${m.price}</td>
-            <td>${m.total}</td>
-        </tr>`;
-    });
+/* ---------------- ORDERS ---------------- */
+function renderOrders() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Заказы — CRM мини, статусы, даты...</div>
+    `;
+}
 
-    html += `</table></div>`;
-    content.innerHTML = html;
+/* ---------------- SALES ---------------- */
+function renderSales() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Продажи — доходы, выручка, маржа...</div>
+    `;
+}
+
+/* ---------------- FINANCES ---------------- */
+function renderFinances() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Финансы — НДС, прибыль, логистика...</div>
+    `;
+}
+
+/* ---------------- SETTINGS ---------------- */
+function renderSettings() {
+    const box = document.getElementById("page-content");
+    box.innerHTML = `
+        <div class="card">Настройки системы ERP Akvadek</div>
+    `;
 }
