@@ -50,4 +50,45 @@ async function renderMaterials() {
     box.innerHTML = html;
 
     document.getElementById("addMaterialBtn").onclick = () => showAddMaterialForm();
+}async function showAddMaterialForm() {
+    const box = document.getElementById("page-content");
+
+    box.innerHTML = `
+        <h2>➕ Добавить материал</h2>
+        <div class="form">
+            <input id="mat_name" placeholder="Название" />
+            <input id="mat_cat" placeholder="Категория" />
+            <input id="mat_unit" placeholder="Ед. изм." />
+            <input id="mat_qty" placeholder="Количество" type="number" />
+            <input id="mat_price" placeholder="Цена" type="number" />
+            <button class="btn" onclick="addMaterial()">Сохранить</button>
+        </div>
+    `;
 }
+
+async function addMaterial() {
+    await api("addMaterial", {
+        name: mat_name.value,
+        category: mat_cat.value,
+        unit: mat_unit.value,
+        qty: Number(mat_qty.value),
+        price: Number(mat_price.value)
+    });
+
+    loadPage("materials");
+}
+
+async function moveMaterial(id, action) {
+    let qty = prompt("Введите количество:");
+
+    if (!qty) return;
+
+    await api("addMovement", {
+        material_id: id,
+        qty: Number(qty),
+        action
+    });
+
+    loadPage("materials");
+}
+
