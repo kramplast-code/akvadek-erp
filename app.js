@@ -1,90 +1,109 @@
-/* ============================
-   AKVADEK ERP — FRONTEND CORE
-=============================== */
-
 import { api } from "./api-config.js";
 
-/* ====================================
-   НАВИГАЦИЯ МЕНЮ
-==================================== */
-
+/* ===== ROUTER ===== */
 const pages = {
-    dashboard: renderDashboard,
-    materials: renderMaterials,
-    production: renderProduction,
-    products: renderProducts,
-    orders: renderOrders,
-    sales: renderSales,
-    finances: renderFinances,
-    settings: renderSettings
+    dashboard,
+    materials,
+    production,
+    products,
+    orders,
+    sales,
+    finances,
+    settings
 };
 
 window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".menu-item").forEach(btn => {
-        btn.addEventListener("click", () => {
-            loadPage(btn.dataset.page);
-            activateMenu(btn);
-        });
+        btn.addEventListener("click", () => loadPage(btn.dataset.page));
     });
 
     loadPage("dashboard");
 });
 
-/* Активный пункт меню */
-
-function activateMenu(btn) {
-    document.querySelectorAll(".menu-item").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-}
-
-/* Загрузка страницы */
-
 function loadPage(page) {
     document.getElementById("page-title").innerText =
-        document.querySelector(`.menu-item[data-page="${page}"]`).innerText;
+        document.querySelector(`[data-page="${page}"]`).innerText.trim();
 
     document.getElementById("page-content").innerHTML = "";
+
     if (pages[page]) pages[page]();
 }
 
-/* ====================================
-   ДАШБОРД
-==================================== */
+/* ===== TOAST ===== */
+export function toast(msg, color = "normal") {
+    const box = document.createElement("div");
+    box.className = "toast";
 
-function renderDashboard() {
-    const box = document.getElementById("page-content");
+    if (color === "success") box.style.borderLeftColor = "var(--success)";
+    if (color === "danger") box.style.borderLeftColor = "var(--danger)";
 
-    box.innerHTML = `
-        <div class="card">
-            <h2>Общая информация</h2>
-            <p>Раздел находится в разработке...</p>
-        </div>
+    box.innerText = msg;
 
-        <div class="card">
-            <h2>Статусы</h2>
-            <p>Отображение KPI и ключевых показателей ERP будет добавлено позже.</p>
-        </div>
+    document.getElementById("toast-container").appendChild(box);
+
+    setTimeout(() => box.classList.add("show"), 20);
+    setTimeout(() => {
+        box.classList.remove("show");
+        setTimeout(() => box.remove(), 300);
+    }, 3000);
+}
+
+/* ===== MODAL SYSTEM ===== */
+export function showModal({ title = "", content = "", size = "md", buttons = [] }) {
+    const modal = document.getElementById("modal");
+    const overlay = document.getElementById("modal-overlay");
+
+    modal.className = `modal show ${size}`;
+    overlay.classList.remove("hidden");
+
+    document.getElementById("modal-title").innerHTML = title;
+    document.getElementById("modal-body").innerHTML = content;
+
+    const footer = document.getElementById("modal-footer");
+    footer.innerHTML = "";
+
+    buttons.forEach(btn => {
+        const b = document.createElement("button");
+        b.innerText = btn.text;
+        b.className = "btn";
+
+        if (btn.type === "cancel") b.style.background = "#4b5563";
+        if (btn.type === "danger") b.style.background = "var(--danger)";
+        if (btn.type === "primary") b.style.background = "var(--accent)";
+
+        b.onclick = () => {
+            if (btn.onClick) btn.onClick();
+            closeModal();
+        };
+
+        footer.appendChild(b);
+    });
+
+    document.getElementById("modal-close").onclick = closeModal;
+    overlay.onclick = closeModal;
+}
+
+export function closeModal() {
+    document.getElementById("modal").classList.remove("show");
+    document.getElementById("modal-overlay").classList.add("hidden");
+}
+
+/* ====== PAGE: DASHBOARD ===== */
+function dashboard() {
+    document.getElementById("page-content").innerHTML = `
+        <div class="card">Добро пожаловать в Akvadek ERP!</div>
     `;
 }
 
-/* ====================================
-   СКЛАД МАТЕРИАЛОВ
-==================================== */
-
-async function renderMaterials() {
+/* ===== MATERIALS ===== */
+async function materials() {
     const box = document.getElementById("page-content");
-    box.innerHTML = `<h2>📦 Склад материалов</h2><div class="loader">Загрузка...</div>`;
+    box.innerHTML = `<h2>📦 Склад материалов</h2> Загрузка...`;
 
     const data = await api("getMaterials");
 
-    if (!data || !data.length) {
-        box.innerHTML = "<div class='card'>Склад пуст</div>";
-        return;
-    }
-
     let html = `
-        <button id="addMaterialBtn" class="btn">➕ Добавить материал</button>
-
+        <button class="btn" id="addMat">➕ Добавить</button>
         <table class="table">
             <thead>
                 <tr>
@@ -92,138 +111,104 @@ async function renderMaterials() {
                     <th>Название</th>
                     <th>Категория</th>
                     <th>Ед.</th>
-                    <th>Количество</th>
+                    <th>Кол-во</th>
                     <th>Цена</th>
-                    <th>Действия</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-    data.forEach(row => {
+    data.forEach(r => {
         html += `
             <tr>
-                <td>${row.material_id}</td>
-                <td>${row.name}</td>
-                <td>${row.category}</td>
-                <td>${row.unit}</td>
-                <td>${row.qty}</td>
-                <td>${row.price}</td>
+                <td>${r.material_id}</td>
+                <td>${r.name}</td>
+                <td>${r.category}</td>
+                <td>${r.unit}</td>
+                <td>${r.qty}</td>
+                <td>${r.price}</td>
                 <td>
-                    <button class="btn-small" onclick="moveMaterial('${row.material_id}', 'plus')">➕</button>
-                    <button class="btn-small" onclick="moveMaterial('${row.material_id}', 'minus')">➖</button>
+                    <button class="btn-small" onclick="changeQty('${r.material_id}', 'plus')">+</button>
+                    <button class="btn-small" onclick="changeQty('${r.material_id}', 'minus')">-</button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
 
     html += "</tbody></table>";
-
     box.innerHTML = html;
 
-    document.getElementById("addMaterialBtn").onclick = () => showAddMaterialForm();
+    document.getElementById("addMat").onclick = addMaterialForm;
 }
 
-/* ---- Форма добавления ---- */
-
-window.showAddMaterialForm = function () {
-    const box = document.getElementById("page-content");
-
-    box.innerHTML = `
-        <h2>➕ Добавить материал</h2>
-        <div class="form">
-            <input id="mat_name" placeholder="Название" />
-            <input id="mat_cat" placeholder="Категория" />
-            <input id="mat_unit" placeholder="Ед. изм." />
-            <input id="mat_qty" placeholder="Количество" type="number" />
-            <input id="mat_price" placeholder="Цена" type="number" />
-            <button class="btn" onclick="addMaterial()">Сохранить</button>
-        </div>
-    `;
-};
-
-/* ---- Сохранение нового материала ---- */
-
-window.addMaterial = async function () {
-    await api("addMaterial", {
-        name: mat_name.value,
-        category: mat_cat.value,
-        unit: mat_unit.value,
-        qty: Number(mat_qty.value),
-        price: Number(mat_price.value)
+/* === ADD MATERIAL FORM === */
+function addMaterialForm() {
+    showModal({
+        title: "Добавить материал",
+        size: "sm",
+        content: `
+            <div class="form">
+                <input id="mat_name" placeholder="Название" />
+                <input id="mat_cat" placeholder="Категория" />
+                <input id="mat_unit" placeholder="Ед." />
+                <input id="mat_qty" placeholder="Кол-во" type="number" />
+                <input id="mat_price" placeholder="Цена" type="number" />
+            </div>
+        `,
+        buttons: [
+            { text: "Отмена", type: "cancel" },
+            {
+                text: "Сохранить",
+                type: "primary",
+                onClick: async () => {
+                    await api("addMaterial", {
+                        name: mat_name.value,
+                        category: mat_cat.value,
+                        unit: mat_unit.value,
+                        qty: Number(mat_qty.value),
+                        price: Number(mat_price.value)
+                    });
+                    toast("Материал добавлен", "success");
+                    loadPage("materials");
+                }
+            }
+        ]
     });
+}
 
-    toast("Материал добавлен");
-    loadPage("materials");
-};
-
-/* ---- Изменение количества (приход/расход) ---- */
-
-window.moveMaterial = async function (id, action) {
-    let qty = prompt("Введите количество:");
-    if (!qty) return;
-
-    await api("addMovement", {
-        material_id: id,
-        qty: Number(qty),
-        action
+/* === CHANGE QTY === */
+window.changeQty = async function (id, action) {
+    showModal({
+        title: "Изменить количество",
+        size: "sm",
+        content: `
+            <div class="form">
+                <input id="qty_input" type="number" placeholder="Количество" />
+            </div>
+        `,
+        buttons: [
+            { text: "Отмена", type: "cancel" },
+            {
+                text: "Изменить",
+                type: "primary",
+                onClick: async () => {
+                    await api("addMovement", {
+                        material_id: id,
+                        action,
+                        qty: Number(qty_input.value)
+                    });
+                    toast("Количество обновлено", "success");
+                    loadPage("materials");
+                }
+            }
+        ]
     });
-
-    toast(action === "plus" ? "Приход добавлен" : "Расход списан");
-    loadPage("materials");
 };
 
-/* ====================================
-   ПРОЧИЕ РАЗДЕЛЫ (заглушки)
-==================================== */
-
-function renderProduction() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Производство» находится в разработке…</div>`;
-}
-
-function renderProducts() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Готовая продукция» находится в разработке…</div>`;
-}
-
-function renderOrders() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Заказы» находится в разработке…</div>`;
-}
-
-function renderSales() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Продажи» находится в разработке…</div>`;
-}
-
-function renderFinances() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Финансы» находится в разработке…</div>`;
-}
-
-function renderSettings() {
-    document.getElementById("page-content").innerHTML =
-        `<div class="card">Раздел «Настройки» находится в разработке…</div>`;
-}
-
-/* ====================================
-   TOAST — уведомления
-==================================== */
-
-window.toast = function (msg) {
-    let cont = document.getElementById("toast-container");
-    if (!cont) {
-        cont = document.createElement("div");
-        cont.id = "toast-container";
-        document.body.appendChild(cont);
-    }
-
-    const t = document.createElement("div");
-    t.className = "toast";
-    t.innerText = msg;
-
-    cont.appendChild(t);
-
-    setTimeout(() => t.remove(), 3000);
-};
+/* === OTHER PAGES === */
+function production() { document.getElementById("page-content").innerHTML = `<div class="card">Раздел в разработке</div>`; }
+function products()   { document.getElementById("page-content").innerHTML = `<div class="card">Раздел в разработке</div>`; }
+function orders()     { document.getElementById("page-content").innerHTML = `<div class="card">Раздел в разработке</div>`; }
+function sales()      { document.getElementById("page-content").innerHTML = `<div class="card">Раздел в разработке</div>`; }
+function finances()   { document.getElementById("page-content").innerHTML = `<div class="card">Раздел в разработке</div>`; }
+function settings()   { document.getElementById("page-content").innerHTML = `<div class="card">Настройки системы</div>`; }
